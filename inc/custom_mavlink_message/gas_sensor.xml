@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<mavlink>
+        <version>3</version>
+    <include>common.xml</include>
+        <enums>
+        </enums>
+        <messages>
+            <message id="200" name="GAS_SENSOR_RAW">
+                <description>This message contains ADC outputs of 4 gas sensors.</description>
+                <field type="uint32_t" name="sensor_1">The raw data from the ADC channel 1.</field>
+                <field type="uint32_t" name="sensor_2">The raw data from the ADC channel 2.</field>
+                <field type="uint32_t" name="sensor_3">The raw data from the ADC channel 3.</field>
+                <field type="uint32_t" name="sensor_4">The raw data from the ADC channel 4.</field>
+                <field type="uint32_t" name="time_boot_ms">Time stamp (milliseconds since system boot)</field>
+            </message>
+            <message id="201" name="GAS_SENSOR">
+                <description>This message contains scaled values of gas sensors to the described units.</description>
+                <field type="float" name="sensor_1">The scaled values to the described units from ADC channel 1.</field>
+                <field type="float" name="sensor_2">The scaled values to the described units from ADC channel 2.</field>
+                <field type="float" name="sensor_3">The scaled values to the described units from ADC channel 3.</field>
+                <field type="float" name="sensor_4">The scaled values to the described units from ADC channel 4.</field>
+                <field type="uint32_t" name="time_boot_ms">Time stamp (milliseconds since system boot)</field>
+            </message>
+        </messages>
+</mavlink>
