@@ -22,8 +22,11 @@
  * customed message
  */
 #include <common/mavlink.h>
+/* User settings, IP address of udp broadcasting in this case */
+#include "settings.h"
 
-#define BUFFER_LENGTH 2041 // minimum buffer size that can be used with qnx (I don't know why)
+// minimum buffer size that can be used with qnx (I don't know why)
+#define BUFFER_LENGTH 2041 
 // Global mavlink message buffer
 extern mavlink_message_t message_mavlink_uart_received;
 // Semaphores
@@ -50,6 +53,10 @@ void *mavlink_udp_send_thread_func(void *arg)
 	int i = 0;
 	//int success = 0;
 	unsigned int temp = 0;
+
+    /* set the ip address, ip_groundstation is a global
+     * const char string defined in settings.h */
+    strcpy(target_ip, ip_groundstation);
 
     memset(&locAddr, 0, sizeof(locAddr));
 	locAddr.sin_family = AF_INET;
@@ -79,9 +86,10 @@ void *mavlink_udp_send_thread_func(void *arg)
 
     for (;;) 
     {
- sem_wait(&sem_mavlink_serial_message_received);
-        printf("Acquired sem and message, message id = %d, micros = %" PRIu64 "\n", message_mavlink_uart_received.msgid, microsSinceEpoch());
-
+        sem_wait(&sem_mavlink_serial_message_received);
+        printf("Acquired sem and message, message id = %d, micros = %"PRIu64"\n", message_mavlink_uart_received.msgid, microsSinceEpoch());
+        len = mavlink_msg_to_send_buffer(buf, &message_mavlink_uart_received);
+        bytes_sent = sendto(sock, buf, len, 0, (struct sockaddr*)&gcAddr, sizeof(struct sockaddr_in));
     }
 
     while(true)

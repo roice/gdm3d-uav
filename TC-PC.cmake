@@ -7,8 +7,8 @@ CMAKE_FORCE_C_COMPILER (gcc GNU)
 CMAKE_FORCE_CXX_COMPILER (g++ GNU)
 
 # set assembly and c language compile flags
-set (CMAKE_C_FLAGS "-D _REENTRANT -lpthread -Wall")
-set (CMAKE_CXX_FLAGS "-D _REENTRANT -lpthread -Wall")
+set (CMAKE_C_FLAGS "-D _REENTRANT -D __STDC_FORMAT_MACROS -lpthread -Wall")
+set (CMAKE_CXX_FLAGS "-D _REENTRANT -D __STDC_FORMAT_MACROS -lpthread -Wall")
 # debug version compile flags
 # -gstabs generate debug info as stabs format, gdb debug info excluded
 # -gstabs+ generate debug info as stabs format, gdb debug info included
