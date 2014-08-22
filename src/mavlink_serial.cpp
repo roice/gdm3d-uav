@@ -11,8 +11,6 @@
  *
  */
 
-#include <common/mavlink.h>
-
 // Standard includes
 #include <iostream>
 #include <cstdlib>
@@ -36,6 +34,18 @@
 #include <sys/time.h>
 #include <time.h>
 
+/* MAVLINK PROTOCAL includes
+ * should change to custom mavlink.h if we have
+ * customed message
+ */
+#include <common/mavlink.h>
+// pThread includes
+#include <pthread.h>
+#include <string>
+#include <semaphore.h>
+// Golobal settings includes
+#include "settings.h"
+
 using std::string;
 using namespace std;
 
@@ -49,6 +59,11 @@ bool silent = false;              ///< Wether console output should be enabled
 bool verbose = false;             ///< Enable verbose output
 bool debug = false;               ///< Enable debug functions and output
 int fd;
+
+// Global mavlink message buffer
+mavlink_message_t message_mavlink_uart_received;
+// Semaphores
+extern sem_t sem_mavlink_serial_message_received;
 
 /**
  *
@@ -229,6 +244,10 @@ void close_port(int fd)
  *
  * This function blocks waiting for serial data in it's own thread
  * and forwards the data once received.
+ *
+ * 20140821 Modified by Roice to add semaphore wait for thread support
+ * when a complete mavlink message was received, the semaphore "sem_mavlink_message_need_send" would be post for udp mavlink thread to send
+ * (a kind of method like message queue)
  */
 int serial_wait(int serial_fd)
 {
@@ -274,9 +293,6 @@ int serial_wait(int serial_fd)
 		// If a message could be decoded, handle it
 		if(msgReceived)
 		{
-
-printf("message received");
-
 			//if (verbose || debug) std::cout << std::dec << "Received and forwarded serial port message with id " << static_cast<unsigned int>(message.msgid) << " from system " << static_cast<int>(message.sysid) << std::endl;
 			
 			// Do not send images over serial port
@@ -306,8 +322,13 @@ printf("message received");
 			if (verbose || debug)
 				printf("Received message from serial with ID #%d (sys:%d|comp:%d):\n", message.msgid, message.sysid, message.compid);
 			
-			/* decode and print */
+            /* copy message to global message buffer and
+             * post the semaphore to inform the udp mavlink thread to send message
+             */
+            message_mavlink_uart_received = message;
+            sem_post(&sem_mavlink_serial_message_received);
 
+			/* decode and print */
 
 			// For full MAVLink message documentation, look at:
 			// https://pixhawk.ethz.ch/mavlink/
@@ -315,7 +336,7 @@ printf("message received");
 			// Only print every n-th message
 			static unsigned int scaled_imu_receive_counter = 0;
 
-printf("message id is %d\n", message.msgid);
+
 
 			switch (message.msgid)
 			{
@@ -345,53 +366,20 @@ printf("message id is %d\n", message.msgid);
 	return 0;
 }
 
-int main(int argc, char **argv) {
+/*
+ * thread function for mavlink serial port receive thread
+ * char *port_name: the serial port name to use, for example "/dev/ttyUSB0"
+ * int baud: baudrate, can be 1200 1800 9600 19200 38400 57600 115200 460800 921600
+ */
+void *mavlink_serial_receive_thread_func(void *arg) {
 
-	/* default values for arguments */
-	char *uart_name = (char*)"/dev/ttyUSB0";
-	int baudrate = 115200;
-	const char *commandline_usage = "\tusage: %s -d <devicename> -b <baudrate> [-v/--verbose] [--debug]\n\t\tdefault: -d %s -b %i\n";
+	/* this routine uses the serial port which connects with autopilot (usually APM)
+     * the following global parameter and macro are defined in settings.h
+     */
+	char *uart_name = global_serial_port_name_autopilot_side;
+	int baudrate = SERIAL_PORT_BAUD_AUTOPILOT_SIDE;
 
-	/* read program arguments */
-	int i;
-
-	for (i = 1; i < argc; i++) { /* argv[0] is "mavlink" */
-		if (strcmp(argv[i], "-h") == 0 || strcmp(argv[i], "--help") == 0) {
-			printf(commandline_usage, argv[0], uart_name, baudrate);
-			return 0;
-		}
-
-		/* UART device ID */
-		if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--device") == 0) {
-			if (argc > i + 1) {
-				uart_name = argv[i + 1];
-
-			} else {
-				printf(commandline_usage, argv[0], uart_name, baudrate);
-				return 0;
-			}
-		}
-
-		/* baud rate */
-		if (strcmp(argv[i], "-b") == 0 || strcmp(argv[i], "--baud") == 0) {
-			if (argc > i + 1) {
-				baudrate = atoi(argv[i + 1]);
-
-			} else {
-				printf(commandline_usage, argv[0], uart_name, baudrate);
-				return 0;
-			}
-		}
-
-		/* terminating MAVLink is allowed - yes/no */
-		if (strcmp(argv[i], "-v") == 0 || strcmp(argv[i], "--verbose") == 0) {
-			verbose = true;
-		}
-
-		if (strcmp(argv[i], "--debug") == 0) {
-			debug = true;
-		}
-	}
+    printf("the port name is %s\n", uart_name);
 
 	// SETUP SERIAL PORT
 
@@ -446,5 +434,12 @@ int main(int argc, char **argv) {
 	
 	close_port(fd);
 
-	return 0;
+    pthread_exit(NULL);
 }
+
+/*
+int main(int argc, char **argv)
+{
+    mavlink_serial_receive_thread("/dev/ttyUSB0", 115200);
+}
+*/

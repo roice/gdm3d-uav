@@ -10,7 +10,7 @@ The following table sumarizes the *development status*:
 
 | Milestone | Status |
 | ----------|--------|
-| UART receive MAVLINK protocal messages from autopilot board ( e.g. APM ) | WIP |
+| UART receive MAVLINK protocal messages from autopilot board ( e.g. APM ) | Coded |
 | UDP broacasting MAVLINK protocal messages to ground station ( Hardware: USB-Wifi adapter )| WIP |
 | ADC converting the analog channels through SPI port | WIP |
 | Test with UAV and qgroundcontrol | WIP |
