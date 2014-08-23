@@ -44,7 +44,6 @@
 #include <string>
 #include <semaphore.h>
 // Golobal settings includes
-#include "settings.h"
 
 using std::string;
 using namespace std;
@@ -55,11 +54,14 @@ struct timeval tv;		  ///< System time
 int sysid = 42;             ///< The unique system id of this MAV, 0-127. Has to be consistent across the system
 int compid = 110;
 int serial_compid = 0;
-bool silent = false;              ///< Wether console output should be enabled
-bool verbose = false;             ///< Enable verbose output
-bool debug = false;               ///< Enable debug functions and output
+extern bool silent;              ///< Wether console output should be enabled
+extern bool verbose;             ///< Enable verbose output
+extern bool debug;               ///< Enable debug functions and output
 int fd;
 
+// Declaration of global parametr
+extern char *global_serial_port_name_autopilot_side;
+extern int serial_port_baud_autopilot_side;
 // Global mavlink message buffer
 mavlink_message_t message_mavlink_uart_received;
 // Semaphores
@@ -377,7 +379,7 @@ void *mavlink_serial_receive_thread_func(void *arg) {
      * the following global parameter and macro are defined in settings.h
      */
 	char *uart_name = global_serial_port_name_autopilot_side;
-	int baudrate = SERIAL_PORT_BAUD_AUTOPILOT_SIDE;
+	int baudrate = serial_port_baud_autopilot_side;
 
     printf("the port name is %s\n", uart_name);
 

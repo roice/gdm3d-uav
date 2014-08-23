@@ -22,11 +22,11 @@
  * customed message
  */
 #include <common/mavlink.h>
-/* User settings, IP address of udp broadcasting in this case */
-#include "settings.h"
 
 // minimum buffer size that can be used with qnx (I don't know why)
-#define BUFFER_LENGTH 2041 
+#define BUFFER_LENGTH 2041
+// Declaration of global parameter -- ip address of ground station
+extern char *ip_groundstation;
 // Global mavlink message buffer
 extern mavlink_message_t message_mavlink_uart_received;
 // Semaphores
