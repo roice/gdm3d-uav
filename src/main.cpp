@@ -24,6 +24,63 @@ char ip_groundstation[100];
 // Semaphores, global
 sem_t sem_mavlink_serial_message_received;
 
+/* 
+ * Function to implement atoi
+ * name:xif 
+ * coder:xifan@2010@yahoo.cn 
+ * time:08.20.2012 
+ * file_name:my_atoi.c 
+ * function:int my_atoi(char* pstr) 
+ */    
+int my_atoi(char* pstr)  
+{  
+    int Ret_Integer = 0;  
+    int Integer_sign = 1;  
+      
+    /* 
+    * 判断指针是否为空 
+    */  
+    if(pstr == NULL)  
+    {  
+        printf("Pointer is NULL\n");  
+        return 0;  
+    }  
+      
+    /* 
+    * 跳过前面的空格字符 
+    */  
+    while(isspace(*pstr) == 0)  
+    {  
+        pstr++;  
+    }  
+      
+    /* 
+    * 判断正负号 
+    * 如果是正号，指针指向下一个字符 
+    * 如果是符号，把符号标记为Integer_sign置-1，然后再把指针指向下一个字符 
+    */  
+    if(*pstr == '-')  
+    {  
+        Integer_sign = -1;  
+    }  
+    if(*pstr == '-' || *pstr == '+')  
+    {  
+        pstr++;  
+    }  
+      
+    /* 
+    * 把数字字符串逐个转换成整数，并把最后转换好的整数赋给Ret_Integer 
+    */  
+    while(*pstr >= '0' && *pstr <= '9')  
+    {  
+        Ret_Integer = Ret_Integer * 10 + *pstr - '0';  
+        pstr++;  
+    }  
+    Ret_Integer = Integer_sign * Ret_Integer;  
+      
+    return Ret_Integer;  
+}
+
 int main(int argc, char **argv)
 {
     int res;
@@ -66,7 +123,7 @@ int main(int argc, char **argv)
 		/* baud rate */
 		if (strcmp(argv[i], "-b") == 0 || strcmp(argv[i], "--baud") == 0) {
 			if (argc > i + 1) {
-				serial_port_baud_autopilot_side = atoi(argv[i+1]);
+				serial_port_baud_autopilot_side = my_atoi(argv[i+1]);
 			} else {
 				printf(commandline_usage, argv[0], global_serial_port_name_autopilot_side, serial_port_baud_autopilot_side, ip_groundstation);
 				return 0;
