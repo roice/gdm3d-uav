@@ -35,8 +35,7 @@ sem_t sem_mavlink_serial_message_received;
 int my_atoi(char* pstr)  
 {  
     int Ret_Integer = 0;  
-    int Integer_sign = 1;  
-      
+    int Integer_sign = 1;        
     /* 
     * 判断指针是否为空 
     */  
@@ -45,7 +44,6 @@ int my_atoi(char* pstr)
         printf("Pointer is NULL\n");  
         return 0;  
     }  
-      
     /* 
     * 跳过前面的空格字符 
     */  
@@ -53,7 +51,6 @@ int my_atoi(char* pstr)
     {  
         pstr++;  
     }  
-      
     /* 
     * 判断正负号 
     * 如果是正号，指针指向下一个字符 
@@ -67,7 +64,6 @@ int my_atoi(char* pstr)
     {  
         pstr++;  
     }  
-      
     /* 
     * 把数字字符串逐个转换成整数，并把最后转换好的整数赋给Ret_Integer 
     */  
@@ -77,7 +73,6 @@ int my_atoi(char* pstr)
         pstr++;  
     }  
     Ret_Integer = Integer_sign * Ret_Integer;  
-      
     return Ret_Integer;  
 }
 
@@ -114,6 +109,7 @@ int main(int argc, char **argv)
 		if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--device") == 0) {
 			if (argc > i + 1) { // to ensure there exists parameter followed "-d" or "--device"
 				strcpy(global_serial_port_name_autopilot_side, argv[i+1]);
+                printf("DEBUG: UART device is %s", global_serial_port_name_autopilot_side);
 			} else {
 				printf(commandline_usage, argv[0], global_serial_port_name_autopilot_side, serial_port_baud_autopilot_side, ip_groundstation);
 				return 0;
@@ -124,6 +120,7 @@ int main(int argc, char **argv)
 		if (strcmp(argv[i], "-b") == 0 || strcmp(argv[i], "--baud") == 0) {
 			if (argc > i + 1) {
 				serial_port_baud_autopilot_side = my_atoi(argv[i+1]);
+                printf("DEBUG: Baud rate is %s", serial_port_baud_autopilot_side);
 			} else {
 				printf(commandline_usage, argv[0], global_serial_port_name_autopilot_side, serial_port_baud_autopilot_side, ip_groundstation);
 				return 0;
@@ -134,6 +131,7 @@ int main(int argc, char **argv)
 		if (strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--ip") == 0) {
 			if (argc > i + 1) {
 				strcpy(ip_groundstation, argv[i+1]);
+                printf("DEBUG: IP address of GS is %s", ip_groundstation);
 			} else {
 				printf(commandline_usage, argv[0], global_serial_port_name_autopilot_side, serial_port_baud_autopilot_side, ip_groundstation);
 				return 0;

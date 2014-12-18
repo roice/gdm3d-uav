@@ -8,5 +8,5 @@ rm -rf build
 mkdir build
 cd build
 #cmake -DCMAKE_TOOLCHAIN_FILE=../TC-WRTnode.cmake ..
-cmake -DCMAKE_TOOLCHAIN_FILE=../TC-PC.cmake ..
+cmake ..
 make
