@@ -33,9 +33,9 @@ int main(int argc, char **argv)
     pthread_t mavlink_udp_x_thread;
 
     /* initialize global parameters */
-    strcpy(global_serial_port_name_autopilot_side, "/dev/ttyUSB0");
+    strcpy(global_serial_port_name_autopilot_side, "/dev/ttyS1");
     serial_port_baud_autopilot_side = 115200;
-    strcpy(ip_groundstation, "192.168.1.102");
+    strcpy(ip_groundstation, "192.168.10.101");
 
     /* Read user entered parameters &
      * set golobal parameters suck as

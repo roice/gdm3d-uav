@@ -87,7 +87,7 @@ void *mavlink_udp_send_thread_func(void *arg)
     for (;;) 
     {
         sem_wait(&sem_mavlink_serial_message_received);
-        printf("Acquired sem and message, message id = %d, micros = %"PRIu64"\n", message_mavlink_uart_received.msgid, microsSinceEpoch());
+        //printf("Acquired sem and message, message id = %d, micros =\\ %"PRIu64"\n", message_mavlink_uart_received.msgid, microsSinceEpoch());
         len = mavlink_msg_to_send_buffer(buf, &message_mavlink_uart_received);
         bytes_sent = sendto(sock, buf, len, 0, (struct sockaddr*)&gcAddr, sizeof(struct sockaddr_in));
     }
