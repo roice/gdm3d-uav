@@ -1,7 +1,9 @@
 /* Serial includes */
 #include <stdio.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+//#include <ctype.h>      // isspace()
 /* pThread and sem related includes */
 #include <pthread.h>
 #include <semaphore.h>
@@ -23,58 +25,7 @@ char ip_groundstation[100];
 
 // Semaphores, global
 sem_t sem_mavlink_serial_message_received;
-
-/* 
- * Function to implement atoi
- * name:xif 
- * coder:xifan@2010@yahoo.cn 
- * time:08.20.2012 
- * file_name:my_atoi.c 
- * function:int my_atoi(char* pstr) 
- */    
-int my_atoi(char* pstr)  
-{  
-    int Ret_Integer = 0;  
-    int Integer_sign = 1;        
-    /* 
-    * 判断指针是否为空 
-    */  
-    if(pstr == NULL)  
-    {  
-        printf("Pointer is NULL\n");  
-        return 0;  
-    }  
-    /* 
-    * 跳过前面的空格字符 
-    */  
-    while(isspace(*pstr) == 0)  
-    {  
-        pstr++;  
-    }  
-    /* 
-    * 判断正负号 
-    * 如果是正号，指针指向下一个字符 
-    * 如果是符号，把符号标记为Integer_sign置-1，然后再把指针指向下一个字符 
-    */  
-    if(*pstr == '-')  
-    {  
-        Integer_sign = -1;  
-    }  
-    if(*pstr == '-' || *pstr == '+')  
-    {  
-        pstr++;  
-    }  
-    /* 
-    * 把数字字符串逐个转换成整数，并把最后转换好的整数赋给Ret_Integer 
-    */  
-    while(*pstr >= '0' && *pstr <= '9')  
-    {  
-        Ret_Integer = Ret_Integer * 10 + *pstr - '0';  
-        pstr++;  
-    }  
-    Ret_Integer = Integer_sign * Ret_Integer;  
-    return Ret_Integer;  
-}
+sem_t sem_mavlink_udp_message_received;
 
 int main(int argc, char **argv)
 {
@@ -83,6 +34,9 @@ int main(int argc, char **argv)
     /* thread handlers */
     pthread_t mavlink_serial_r_thread;
     pthread_t mavlink_udp_x_thread;
+    pthread_t mavlink_serial_x_thread;
+    pthread_t mavlink_udp_r_thread;
+
 
     /* initialize global parameters */
     strcpy(global_serial_port_name_autopilot_side, "/dev/ttyS1");
@@ -109,7 +63,9 @@ int main(int argc, char **argv)
 		if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--device") == 0) {
 			if (argc > i + 1) { // to ensure there exists parameter followed "-d" or "--device"
 				strcpy(global_serial_port_name_autopilot_side, argv[i+1]);
-                printf("DEBUG: UART device is %s", global_serial_port_name_autopilot_side);
+#ifdef DEBUG
+                printf("DEBUG: UART device is %s\n", global_serial_port_name_autopilot_side);
+#endif
 			} else {
 				printf(commandline_usage, argv[0], global_serial_port_name_autopilot_side, serial_port_baud_autopilot_side, ip_groundstation);
 				return 0;
@@ -119,8 +75,10 @@ int main(int argc, char **argv)
 		/* baud rate */
 		if (strcmp(argv[i], "-b") == 0 || strcmp(argv[i], "--baud") == 0) {
 			if (argc > i + 1) {
-				serial_port_baud_autopilot_side = my_atoi(argv[i+1]);
-                printf("DEBUG: Baud rate is %s", serial_port_baud_autopilot_side);
+				serial_port_baud_autopilot_side = atoi(argv[i+1]);
+#ifdef DEBUG
+                printf("DEBUG: Baud rate is %d\n", serial_port_baud_autopilot_side);
+#endif
 			} else {
 				printf(commandline_usage, argv[0], global_serial_port_name_autopilot_side, serial_port_baud_autopilot_side, ip_groundstation);
 				return 0;
@@ -131,7 +89,9 @@ int main(int argc, char **argv)
 		if (strcmp(argv[i], "-i") == 0 || strcmp(argv[i], "--ip") == 0) {
 			if (argc > i + 1) {
 				strcpy(ip_groundstation, argv[i+1]);
-                printf("DEBUG: IP address of GS is %s", ip_groundstation);
+#ifdef DEBUG
+                printf("DEBUG: IP address of GS is %s\n", ip_groundstation);
+#endif
 			} else {
 				printf(commandline_usage, argv[0], global_serial_port_name_autopilot_side, serial_port_baud_autopilot_side, ip_groundstation);
 				return 0;
@@ -147,17 +107,41 @@ int main(int argc, char **argv)
 			debug = true;
 		}
 	}
+#ifdef DEBUG
+    printf("Args are parsed and saved\n");
+#endif
+
+
+    /* Open serial Port */
+    serial_port_init();
+    /* Initialize UDP link */
+    udp_init();
 
     /* semaphore init
      * local sem for current process
      * initial value for this sem is 0
+     *
+     * Note: sem_init function prototype:
+     * #include <semaphore.h>
+     * int sem_init(sem_t *sem, int pshared, unsigned int value);
+     * if pshared == 0, this sem is a local sem for current process
+     * if pshared !=0, this sem can be shared with other processes
      */
     res = sem_init(&sem_mavlink_serial_message_received, 0, 0);
     if(res != 0)
     {
-        perror("Sem 'sem_mavlink_message_need_send' init failed");
+        perror("Sem 'sem_mavlink_serial_message_received' init failed");
         exit(EXIT_FAILURE);
     }
+    res = sem_init(&sem_mavlink_udp_message_received, 0, 0);
+    if(res != 0)
+    {
+        perror("Sem 'sem_mavlink_udp_message_received' init failed");
+        exit(EXIT_FAILURE);
+    }
+#ifdef DEBUG
+    printf("Semaphore init successfully\n");
+#endif
 
     /* create thread for mavlink send via udp */
     res = pthread_create(&mavlink_udp_x_thread, NULL, mavlink_udp_send_thread_func, NULL);
@@ -167,13 +151,32 @@ int main(int argc, char **argv)
         exit(EXIT_FAILURE);
     }
 
+    /* create thread for mavlink send via serial */
+    res = pthread_create(&mavlink_serial_x_thread, NULL, mavlink_serial_send_thread_func, NULL);
+    if(res != 0)
+    {
+        perror("Thread 'mavlink_serial_x_thread' create failed");
+        exit(EXIT_FAILURE);
+    }
+
     /* create thread for mavlink receive via serial */
     res = pthread_create(&mavlink_serial_r_thread, NULL, mavlink_serial_receive_thread_func, NULL);
     if(res != 0)
     {
-        perror("Thread 'mavlink_udp_x_thread' create failed");
+        perror("Thread 'mavlink_serial_r_thread' create failed");
         exit(EXIT_FAILURE);
     }
+    
+    /* create thread for mavlink receive via udp */
+    res = pthread_create(&mavlink_udp_r_thread, NULL, mavlink_udp_receive_thread_func, NULL);
+    if(res != 0)
+    {
+        perror("Thread 'mavlink_udp_r_thread' create failed");
+        exit(EXIT_FAILURE);
+    }
+#ifdef DEBUG
+    printf("Threads created.\n");
+#endif
 
     /* block here, the thread to be waited can be anyone, since none of
      * the threads would exit or be canceled.
@@ -184,6 +187,9 @@ int main(int argc, char **argv)
         perror("Thread join failed!/n");
         exit(EXIT_FAILURE);
     }
+#ifdef DEBUG
+    printf("Threads Terminated\n");
+#endif
 
     exit(EXIT_FAILURE);
 }

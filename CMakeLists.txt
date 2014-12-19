@@ -11,12 +11,13 @@ project (${PRJ_NAME})
 # select the build type for this lib project (release recommanded)
 #set (CMAKE_BUILD_TYPE Release)
 #set (CMAKE_BUILD_TYPE Debug)
+add_definitions (-DDEBUG)
 ############################## End ###################################
 
 ###################### Don't touch if possible #######################
 # set assembly and c language compile flags
-set (CMAKE_C_FLAGS "-D _REENTRANT -D __STDC_FORMAT_MACROS -lpthread -Wall")
-set (CMAKE_CXX_FLAGS "-D _REENTRANT -D __STDC_FORMAT_MACROS -lpthread -Wall")
+set (CMAKE_C_FLAGS "-D_REENTRANT -lpthread -Wall")
+set (CMAKE_CXX_FLAGS "-D_REENTRANT -lpthread -Wall")
 # debug version compile flags
 # -gstabs generate debug info as stabs format, gdb debug info excluded
 # -gstabs+ generate debug info as stabs format, gdb debug info included

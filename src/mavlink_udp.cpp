@@ -7,6 +7,7 @@
 #include <errno.h>   /* Error number definitions */
 /* Network includes */
 #include <sys/socket.h> /* socket functions and data structures */
+#include <netinet/in.h>
 /* Linux POSIX timer headers */
 #include <sys/time.h>   /* headers for date and time of linux system */
 #include <time.h>       /* headers for date and time */
@@ -26,44 +27,46 @@
 // minimum buffer size that can be used with qnx (I don't know why)
 #define BUFFER_LENGTH 2041
 // Declaration of global parameter -- ip address of ground station
-extern char *ip_groundstation;
+extern char ip_groundstation[100];
 // Global mavlink message buffer
 extern mavlink_message_t message_mavlink_uart_received;
+mavlink_message_t message_mavlink_udp_received;
 // Semaphores
 extern sem_t sem_mavlink_serial_message_received;
+extern sem_t sem_mavlink_udp_message_received;
 // micro seconds since epoch
 uint64_t microsSinceEpoch();
 
-void *mavlink_udp_send_thread_func(void *arg)
-{
-    /* target ip for udp link, stored as char string */
-    char target_ip[100];
- 
-	float position[6] = {};
-	int sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
-	struct sockaddr_in gcAddr; 
-	struct sockaddr_in locAddr;
-    //struct sockaddr_in fromAddr;
-	uint8_t buf[BUFFER_LENGTH];
-	ssize_t recsize;
-	socklen_t fromlen;
-	int bytes_sent;
-	mavlink_message_t msg;
-	uint16_t len;
-	int i = 0;
-	//int success = 0;
-	unsigned int temp = 0;
 
+/* parameters of this file */
+/* target ip for udp link, stored as char string */
+char target_ip[100];
+float position[6] = {};
+int sock = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
+struct sockaddr_in gcAddr; 
+struct sockaddr_in locAddr;
+//struct sockaddr_in fromAddr;
+uint8_t buf[BUFFER_LENGTH]; // udp send buf
+uint8_t buf_r[BUFFER_LENGTH]; // udp receive buf
+ssize_t recsize;                // recsize
+socklen_t fromlen;              // receivelength
+
+/* UDP initialize */
+void udp_init(void)
+{
     /* set the ip address, ip_groundstation is a global
      * const char string defined in settings.h */
     strcpy(target_ip, ip_groundstation);
+#ifdef DEBUG
+    printf("DEBUG: In mavlink_udp_send_thread_func() function of mavlink_udp.cpp, parameters initialized\n");
+#endif
 
     memset(&locAddr, 0, sizeof(locAddr));
 	locAddr.sin_family = AF_INET;
 	locAddr.sin_addr.s_addr = INADDR_ANY;
 	locAddr.sin_port = htons(14551);
- 
-	/* Bind the socket to port 14551 - necessary to receive packets from qgroundcontrol */ 
+
+/* Bind the socket to port 14551 - necessary to receive packets from qgroundcontrol */ 
 	if (-1 == bind(sock,(struct sockaddr *)&locAddr, sizeof(struct sockaddr)))
     {
 		perror("error bind failed");
@@ -83,7 +86,13 @@ void *mavlink_udp_send_thread_func(void *arg)
 	gcAddr.sin_family = AF_INET;
 	gcAddr.sin_addr.s_addr = inet_addr(target_ip);
 	gcAddr.sin_port = htons(14550);
+}
 
+void *mavlink_udp_send_thread_func(void *arg)
+{    
+	uint16_t len;
+    int bytes_sent;
+    
     for (;;) 
     {
         sem_wait(&sem_mavlink_serial_message_received);
@@ -92,57 +101,45 @@ void *mavlink_udp_send_thread_func(void *arg)
         bytes_sent = sendto(sock, buf, len, 0, (struct sockaddr*)&gcAddr, sizeof(struct sockaddr_in));
     }
 
-    while(true)
-    {
-        
+    pthread_exit(NULL);
+}
 
-        /*Send Heartbeat */
-		mavlink_msg_heartbeat_pack(1, 200, &msg, MAV_TYPE_HELICOPTER, MAV_AUTOPILOT_GENERIC, MAV_MODE_GUIDED_ARMED, 0, MAV_STATE_ACTIVE);
-		len = mavlink_msg_to_send_buffer(buf, &msg);
-		bytes_sent = sendto(sock, buf, len, 0, (struct sockaddr*)&gcAddr, sizeof(struct sockaddr_in));
- 
-		/* Send Status */
-		mavlink_msg_sys_status_pack(1, 200, &msg, 0, 0, 0, 500, 11000, -1, -1, 0, 0, 0, 0, 0, 0);
-		len = mavlink_msg_to_send_buffer(buf, &msg);
-		bytes_sent = sendto(sock, buf, len, 0, (struct sockaddr*)&gcAddr, sizeof (struct sockaddr_in));
- 
-		/* Send Local Position */
-		mavlink_msg_local_position_ned_pack(1, 200, &msg, microsSinceEpoch(), 
-										position[0], position[1], position[2],
-										position[3], position[4], position[5]);
-		len = mavlink_msg_to_send_buffer(buf, &msg);
-		bytes_sent = sendto(sock, buf, len, 0, (struct sockaddr*)&gcAddr, sizeof(struct sockaddr_in));
- 
-		/* Send attitude */
-		mavlink_msg_attitude_pack(1, 200, &msg, microsSinceEpoch(), 1.2, 1.7, 3.14, 0.01, 0.02, 0.03);
-		len = mavlink_msg_to_send_buffer(buf, &msg);
-		bytes_sent = sendto(sock, buf, len, 0, (struct sockaddr*)&gcAddr, sizeof(struct sockaddr_in));
- 
- 
-		memset(buf, 0, BUFFER_LENGTH);
-		recsize = recvfrom(sock, (void *)buf, BUFFER_LENGTH, 0, (struct sockaddr *)&gcAddr, &fromlen);
+/* the thread routine of Thread "mavlink_udp_r_thread" */
+void *mavlink_udp_receive_thread_func(void *arg)
+{
+    int i = 0;
+    unsigned int temp = 0;
+    mavlink_message_t message;
+    mavlink_status_t status;
+   
+    for (;;) 
+    {
+        memset(buf_r, 0, BUFFER_LENGTH);
+        recsize = recvfrom(sock, (void *)buf_r, BUFFER_LENGTH, 0, (struct sockaddr *)&gcAddr, &fromlen);
 		if (recsize > 0)
       	{
 			// Something received - print out all bytes and parse packet
-			mavlink_message_t msg;
-			mavlink_status_t status;
- 
-			printf("Bytes Received: %d\nDatagram: ", (int)recsize);
-			for (i = 0; i < recsize; ++i)
-			{
-				temp = buf[i];
-				printf("%02x ", (unsigned char)temp);
-				if (mavlink_parse_char(MAVLINK_COMM_0, buf[i], &msg, &status))
-				{
-					// Packet received
-					printf("\nReceived packet: SYS: %d, COMP: %d, LEN: %d, MSG ID: %d\n", msg.sysid, msg.compid, msg.len, msg.msgid);
-				}
-			}
-			printf("\n");
-		}
-		memset(buf, 0, BUFFER_LENGTH);
-		sleep(1); // Sleep one second
+            for (i=0; i<recsize; ++i)
+            {
+                temp = buf[i];
+                /* If a message could be decoded, handle it */
+                if (mavlink_parse_char(MAVLINK_COMM_1, buf[i], &message, &status))
+                {/* packet received */
+#ifdef DEBUG
+                    printf("Received packet: SYS: %d, COMP: %d, LEN: %d, MSG ID: %d\n", message.sysid, message.compid, message.len, message.msgid);
+#endif
+                    
+                   /* copy message to global message buffer and 
+                    * post the semaphore to inform the udp mavlink thread to 
+                    * send message
+                    */
+                    message_mavlink_udp_received = message;
+                    sem_post(&sem_mavlink_udp_message_received);  
+                }
+            }
+        }
     }
+
     pthread_exit(NULL);
 }
 

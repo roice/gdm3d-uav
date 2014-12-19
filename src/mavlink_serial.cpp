@@ -57,15 +57,17 @@ int serial_compid = 0;
 extern bool silent;              ///< Wether console output should be enabled
 extern bool verbose;             ///< Enable verbose output
 extern bool debug;               ///< Enable debug functions and output
-int fd;
+int fd;                          /// handler of serial_port
 
 // Declaration of global parametr
-extern char *global_serial_port_name_autopilot_side;
+extern char global_serial_port_name_autopilot_side[100];
 extern int serial_port_baud_autopilot_side;
 // Global mavlink message buffer
 mavlink_message_t message_mavlink_uart_received;
+extern mavlink_message_t message_mavlink_udp_received;
 // Semaphores
 extern sem_t sem_mavlink_serial_message_received;
+extern sem_t sem_mavlink_udp_message_received;
 
 /**
  *
@@ -257,28 +259,28 @@ int serial_wait(int serial_fd)
 	
 	mavlink_status_t lastStatus;
 	lastStatus.packet_rx_drop_count = 0;
-	
-	// Blocking wait for new data
+		
+	//if (debug) printf("Checking for new data on serial port\n");
+	// Block until data is available, read only one byte to be able to continue immediately
+	//char buf[MAVLINK_MAX_PACKET_LEN];
+	uint8_t cp;     // character received
+	mavlink_message_t message;
+	mavlink_status_t status;
+	uint8_t msgReceived = false;
+
+    // Blocking wait for new data
 	while (1)
 	{
-		//if (debug) printf("Checking for new data on serial port\n");
-		// Block until data is available, read only one byte to be able to continue immediately
-		//char buf[MAVLINK_MAX_PACKET_LEN];
-		uint8_t cp;
-		mavlink_message_t message;
-		mavlink_status_t status;
-		uint8_t msgReceived = false;
-
-		if (read(fd, &cp, 1) > 0)
+		/* Read a byte from UART */
+        if (read(fd, &cp, 1) > 0)
 		{
-
-//printf("byte received is %c", cp);
-
+            // Printf("byte received is %c", cp);
 			// Check if a message could be decoded, return the message in case yes
-			msgReceived = mavlink_parse_char(MAVLINK_COMM_1, cp, &message, &status);
+			msgReceived = mavlink_parse_char(MAVLINK_COMM_0, cp, &message, &status);
 			if (lastStatus.packet_rx_drop_count != status.packet_rx_drop_count)
 			{
-				if (verbose || debug) printf("ERROR: DROPPED %d PACKETS\n", status.packet_rx_drop_count);
+				if (verbose || debug)
+                    printf("ERROR: DROPPED %d PACKETS\n", status.packet_rx_drop_count);
 				if (debug)
 				{
 					unsigned char v=cp;
@@ -330,8 +332,7 @@ int serial_wait(int serial_fd)
             message_mavlink_uart_received = message;
             sem_post(&sem_mavlink_serial_message_received);
 
-			/* decode and print */
-
+            /*
 			// For full MAVLink message documentation, look at:
 			// https://pixhawk.ethz.ch/mavlink/
 
@@ -363,31 +364,31 @@ int serial_wait(int serial_fd)
 				}
 				break;
 			}
+*/
 		}
 	}
 	return 0;
 }
 
-/*
- * thread function for mavlink serial port receive thread
- * char *port_name: the serial port name to use, for example "/dev/ttyUSB0"
- * int baud: baudrate, can be 1200 1800 9600 19200 38400 57600 115200 460800 921600
- */
-void *mavlink_serial_receive_thread_func(void *arg) {
-
-	/* this routine uses the serial port which connects with autopilot (usually APM)
-     * the following global parameter and macro are defined in settings.h
+/* Initialize serial port */
+void serial_port_init(void)
+{
+	/* this routine uses the serial port which connects with autopilot (APM)
+     * the following global parameter and macro are defined in main.cpp
      */
-	char *uart_name = global_serial_port_name_autopilot_side;
+    char *uart_name = global_serial_port_name_autopilot_side;
 	int baudrate = serial_port_baud_autopilot_side;
+#ifdef DEBUG
+    printf("the port name is %s, baudrate is %d\n", uart_name, baudrate);
+#endif
 
-    printf("the port name is %s\n", uart_name);
-
-	// SETUP SERIAL PORT
-
-	// Exit if opening port failed
-	// Open the serial port.
+	/* SETUP SERIAL PORT
+     * Exit if opening port failed
+     * Open the serial port.
+     */
+#ifdef DEBUG
 	if (!silent) printf("Trying to connect to %s.. ", uart_name);
+#endif
 	fflush(stdout);
 
 	fd = open_port(uart_name);
@@ -398,9 +399,16 @@ void *mavlink_serial_receive_thread_func(void *arg) {
 	}
 	else
 	{
+#ifdef DEBUG
 		if (!silent) printf("success.\n");
+#endif
 	}
+    /*
+     * Configure UART
+     */
+#ifdef DEBUG
 	if (!silent) printf("Trying to configure %s.. ", uart_name);
+#endif
 	bool setup = setup_port(fd, baudrate, 8, 1, false, false);
 	if (!setup)
 	{
@@ -409,7 +417,9 @@ void *mavlink_serial_receive_thread_func(void *arg) {
 	}
 	else
 	{
+#ifdef DEBUG
 		if (!silent) printf("success.\n");
+#endif
 	}
 
 	int noErrors = 0;
@@ -420,22 +430,68 @@ void *mavlink_serial_receive_thread_func(void *arg) {
 	}
 	else
 	{
+#ifdef DEBUG
 		if (!silent) fprintf(stderr, "\nConnected to %s with %d baud, 8 data bits, no parity, 1 stop bit (8N1)\n", uart_name, baudrate);
+#endif
 	}
 	
 	if(fd < 0)
 	{
 		exit(noErrors);
 	}
-
 	// Run indefinitely while the serial loop handles data
+#ifdef DEBUG
 	if (!silent) printf("\nREADY, waiting for serial data.\n");
+#endif
+}
 
-	// while(true) wait loop
-	serial_wait(fd);
+/*
+ * thread function for mavlink serial port receive thread
+ * char *port_name: the serial port name to use, for example "/dev/ttyUSB0"
+ * int baud: baudrate, can be 1200 1800 9600 19200 38400 57600 115200 460800 921600
+ */
+void *mavlink_serial_receive_thread_func(void *arg) 
+{
+    /* loop for serial data parse */
+    serial_wait(fd);
 	
 	close_port(fd);
 
+    pthread_exit(NULL);
+}
+
+/* the thread routine of Thread "mavlink_serial_x_thread" */
+void *mavlink_serial_send_thread_func(void *arg)
+{
+    int len, written;
+    uint8_t buf_ready2send[MAVLINK_MAX_PACKET_LEN];
+    while(1)
+    {
+        sem_wait(&sem_mavlink_udp_message_received);
+#ifdef DEBUG
+        printf("DEBUG: udp message received\n");
+#endif
+        /* copy message to local buffer */
+        len = mavlink_msg_to_send_buffer(buf_ready2send, &message_mavlink_udp_received);
+#ifdef DEBUG
+        printf("DEBUG: UDP Waiting to send: SYS: %d, COMP: %d, LEN: %d, MSG ID: %d\n", message_mavlink_udp_received.sysid, message_mavlink_udp_received.compid, message_mavlink_udp_received.len, message_mavlink_udp_received.msgid);
+#endif
+        if (fd == -1)
+        {
+            printf("Error: Cannot open serial port\n");
+            break;
+        }
+        else
+        {
+            written = write(fd, (char*)buf_ready2send, len);
+            tcflush(fd, TCOFLUSH);
+            /* if the number of bytes written is not correct */
+            if(written != len)
+                printf("ERROR: Wrote %d bytes but should have written %d\n", written, len);
+        }
+    }
+
+    close_port(fd);
     pthread_exit(NULL);
 }
 
