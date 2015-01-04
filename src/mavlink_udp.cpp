@@ -58,7 +58,7 @@ void udp_init(void)
      * const char string defined in settings.h */
     strcpy(target_ip, ip_groundstation);
 #ifdef DEBUG
-    printf("DEBUG: In mavlink_udp_send_thread_func() function of mavlink_udp.cpp, parameters initialized\n");
+    printf("DEBUG: In mavlink_udp_send_thread_func() function of mavlink_udp.cpp, target_ip init as: %s\n", target_ip);
 #endif
 
     memset(&locAddr, 0, sizeof(locAddr));
@@ -121,9 +121,9 @@ void *mavlink_udp_receive_thread_func(void *arg)
 			// Something received - print out all bytes and parse packet
             for (i=0; i<recsize; ++i)
             {
-                temp = buf[i];
+                temp = buf_r[i];
                 /* If a message could be decoded, handle it */
-                if (mavlink_parse_char(MAVLINK_COMM_1, buf[i], &message, &status))
+                if (mavlink_parse_char(MAVLINK_COMM_1, buf_r[i], &message, &status))
                 {/* packet received */
 #ifdef DEBUG
                     printf("Received packet: SYS: %d, COMP: %d, LEN: %d, MSG ID: %d\n", message.sysid, message.compid, message.len, message.msgid);

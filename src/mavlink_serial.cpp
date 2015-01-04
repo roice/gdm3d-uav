@@ -91,9 +91,8 @@ int open_port(const char* port)
 	else
 	{
 		fcntl(fd, F_SETFL, 0);
-	}
-	
-	return (fd);
+        return (fd);
+	}	
 }
 
 bool setup_port(int fd, int baud, int data_bits, int stop_bits, bool parity, bool hardware_control)
@@ -118,8 +117,9 @@ bool setup_port(int fd, int baud, int data_bits, int stop_bits, bool parity, boo
 	// no input parity check, don't strip high bit off,
 	// no XON/XOFF software flow control
 	//
-	config.c_iflag &= ~(IGNBRK | BRKINT | ICRNL |
-	                    INLCR | PARMRK | INPCK | ISTRIP | IXON);
+//	config.c_iflag &= ~(IGNBRK | BRKINT | ICRNL | INLCR | PARMRK | INPCK | ISTRIP | IXON);
+    config.c_iflag &= ~(INPCK | ISTRIP);
+    config.c_iflag &= ~(IXON | IXOFF | IXANY);
 	//
 	// Output flags - Turn off output processing
 	// no CR to NL translation, no NL to CR-NL translation,
@@ -127,9 +127,8 @@ bool setup_port(int fd, int baud, int data_bits, int stop_bits, bool parity, boo
 	// no Ctrl-D suppression, no fill characters, no case mapping,
 	// no local output processing
 	//
-	config.c_oflag &= ~(OCRNL | ONLCR | ONLRET |
-	                     ONOCR | OFILL | OPOST);
-
+	//config.c_oflag &= ~(OCRNL | ONLCR | ONLRET | ONOCR | OFILL | OPOST);
+    config.c_oflag &= ~OPOST;
 	#ifdef OLCUC 
   		config.c_oflag &= ~OLCUC; 
 	#endif
@@ -143,20 +142,22 @@ bool setup_port(int fd, int baud, int data_bits, int stop_bits, bool parity, boo
 	// echo off, echo newline off, canonical mode off,
 	// extended input processing off, signal chars off
 	//
-	config.c_lflag &= ~(ECHO | ECHONL | ICANON | IEXTEN | ISIG);
+	config.c_lflag &= ~(ECHO | ECHOE | ECHOK | ECHONL | ICANON | IEXTEN | ISIG | ECHOCTL | ECHOPRT | ECHOKE);
 	//
 	// Turn off character processing
 	// clear current char size mask, no parity checking,
 	// no output processing, force 8 bit input
-	//
-	config.c_cflag &= ~(CSIZE | PARENB);
-	config.c_cflag |= CS8;
+	// N81
+	config.c_cflag &= ~CSIZE; // mask the character size bits
+    config.c_cflag &= ~PARENB;    // no parity
+    config.c_cflag &= ~CSTOPB;  // 1 stop bit
+	config.c_cflag |= CS8;  // select 8 data bits
 	//
 	// One input byte is enough to return from read()
 	// Inter-character timer off
 	//
-	config.c_cc[VMIN]  = 1;
-	config.c_cc[VTIME] = 10; // was 0
+//	config.c_cc[VMIN]  = 1;
+//	config.c_cc[VTIME] = 10; // was 0
 	
 	// Get the current options for the port
 	//tcgetattr(fd, &options);
@@ -226,6 +227,11 @@ bool setup_port(int fd, int baud, int data_bits, int stop_bits, bool parity, boo
 			
 			break;
 	}
+
+    /* 
+     * Enable the receiver and set local mode
+     */
+    //config.c_cflag |= (CLOCAL | CREAD);
 	
 	//
 	// Finally, apply the configuration
