@@ -48,8 +48,7 @@ int main()
                 val += 1;
                 val = -val;
             }
-            voltage = (double)val*0.596046;
-            printf("Voltage is %f Volt.\n", voltage);
+            printf("Sampled ADC is %d .\n", val);
         }
         usleep(100000);
     }
