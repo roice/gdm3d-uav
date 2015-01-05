@@ -257,8 +257,8 @@ namespace input
         /* Amp 1 */
         writeReg(ADS1256_ADCON, 0x00, true);
         usleep(1000);
-        /* data 5sps */
-        writeReg(ADS1256_DRATE, ADS1256_DRATE_10SPS, true);
+        /* data 100sps */
+        writeReg(ADS1256_DRATE, ADS1256_DRATE_100SPS, true);
         usleep(1000);
         writeReg(ADS1256_IO, 0x00, true);
         usleep(1000);
