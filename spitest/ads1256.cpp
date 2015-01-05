@@ -243,6 +243,7 @@ namespace input
 
         /* Settings of ADS1256 */
         /* status */
+        usleep(1000);
         writeReg(ADS1256_STATUS, 0x06, true);
         usleep(1000);
         /* A0:'+' AINCOM:'-' */
