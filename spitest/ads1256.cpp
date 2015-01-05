@@ -142,10 +142,6 @@ namespace input
 
 		xfer[0].tx_buf = xfer[0].rx_buf = (unsigned long) txb1;
 		xfer[1].tx_buf = xfer[1].rx_buf = (unsigned long) txb2;
-        /* Modified by Roice, 20150105
-        xfer[0].tx_buf = xfer[0].rx_buf = ((unsigned int)txb1[0] << 24) + ((unsigned int)txb1[1] << 16);
-		xfer[1].tx_buf = xfer[1].rx_buf = (unsigned int)txb2[0] << 24;
-        */
 
 		xfer[0].len = 2;
 		xfer[0].delay_usecs	= readDelayUSecs;
@@ -201,7 +197,7 @@ namespace input
 		int ret;
 
         /* CPOL=low, CPHA=second edge, MSB first, 8bits */
-		uint8_t mode = SPI_MODE_1;
+		uint8_t mode = SPI_MODE_0;
 		uint8_t bits = 8;
 		uint32_t speed = spiclk;
 
