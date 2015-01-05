@@ -21,7 +21,7 @@
 int main()
 {
     /* init AD */
-    input::ADS1256 devAD(SPIDEV_NODE_ADC, ADC_VREF);
+    input::ADS1256 devAD(SPIDEV_NODE_ADC);
     if (!devAD.init()) {
         printf("Error: Error init AD\n");
         return -1;

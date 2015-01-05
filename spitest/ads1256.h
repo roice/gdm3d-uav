@@ -26,9 +26,8 @@
 
 #include <stdint.h>
 
-/* Clock and reference volt of ADS1256 */
+/* Clock of the SPI connecting ADS1256 */
 #define ADS1256_SPI_CLK  50000
-#define ADS1256_VREF    5.0
 
 // define commands 
 #define ADS1256_CMD_WAKEUP   0x00 
@@ -123,7 +122,6 @@ namespace input {
 		protected:
 			const char	*spidevname;
 			int			fd;	/* file descriptor */
-			float		vRef;
 
 			/**
 			 * Reads a register from the A/D.
@@ -151,7 +149,7 @@ namespace input {
 			 * @param device	spidev to use for communication
 			 * @param vref		reference voltage
 			 */
-			ADS1256( const char *device, float vref );
+			ADS1256( const char *device);
 
 			/**
 			 * Try to initialize spidev and relevant functionality

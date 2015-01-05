@@ -50,10 +50,9 @@ static const int	readDelayUSecs	= 50*1000*1000/ADS1256_SPI_CLK;
 
 namespace input 
 {
-	ADS1256::ADS1256( const char *spidev, float vref ) 
+	ADS1256::ADS1256( const char *spidev) 
 	{
 		spidevname	= spidev;
-		vRef = vref;
 	}
 
 	bool	ADS1256::writeCmd( unsigned char cmd )
