@@ -69,9 +69,6 @@ namespace input
 
         
 		xfer[0].tx_buf = xfer[0].rx_buf = (unsigned long) txb1;
-        /* Modified by Roice, 20150105
-        xfer[0].tx_buf = xfer[0].rx_buf = (unsigned int)txb1[0] << 24;
-        */
 
 		xfer[0].len = 1;
 		
@@ -248,21 +245,6 @@ namespace input
 			cout << "can't get max speed hz" << endl;
 		}
 
-        /* Settings of ADS1256 */
-        /* status */
-        //writeReg(ADS1256_STATUS, 0x06, true);
-        usleep(1000);
-        /* A0:'+' AINCOM:'-' */
-        //writeReg(ADS1256_MUX, 0x08, true);
-        usleep(1000);
-        /* Amp 1 */
-        //writeReg(ADS1256_ADCON, 0x00, true);
-        usleep(1000);
-        /* data 100sps */
-        //writeReg(ADS1256_DRATE, ADS1256_DRATE_100SPS, true);
-        usleep(1000);
-        //writeReg(ADS1256_IO, 0x00, true);
-        usleep(1000);
 		return true;	//ok!
 	}
 
@@ -272,10 +254,7 @@ namespace input
 
         /* set channel */
         writeReg(ADS1256_MUX, channel);
-        usleep(100); 
-       // writeCmd(ADS1256_CMD_WAKEUP);
-       // usleep(100);
-       // writeCmd(ADS1256_CMD_SYNC);
+        usleep(100);
 
         if(!readData(&sample_val))
         {
