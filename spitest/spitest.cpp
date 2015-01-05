@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <unistd.h>
+
 #include "ads1256.h"
 
 /* device node of SPI for ADS1256 */
@@ -34,6 +36,6 @@ int main()
             printf("Error: Convert ADC channel 0 error\n");
         else
             printf("%d\t", val);
-        usleep(1000);
+        sleep(1);
     }
 }
