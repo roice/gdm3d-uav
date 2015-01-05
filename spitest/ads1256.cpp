@@ -235,7 +235,9 @@ namespace input
 		}
 
         /* Settings of ADS1256 */
-        writeReg(ADS1256_STATUS, 0x06, true);
+        /* status */
+        if (!writeReg(ADS1256_STATUS, 0x06, true))
+            printf("Error: ADS1256::init-->'writeReg(ADS1256_STATUS, 0x06, true)' verify failed");
         /* A0:'+' AINCOM:'-' */
         writeReg(ADS1256_MUX, 0x08, true);
         /* Amp 1 */
