@@ -9,7 +9,7 @@
 /* device node of SPI for ADS1256 */
 #define SPIDEV_NODE_ADC  "/dev/spidev0.0"
 /* Clock and reference volt of ADS1256 */
-#define SPIDEV_CLK_ADC  400000
+#define SPIDEV_CLK_ADC  500000
 #define ADC_VREF    5.0
 #define ADC_CH0     (ADS1256_MUXN_AIN0 << 4) | ADS1256_MUXN_AINCOM
 #define ADC_CH1     1
@@ -31,6 +31,9 @@ int main()
 
 
     printf("Init ADC done.\n");
+
+while(1)
+{}
 
     while(1)
     {
