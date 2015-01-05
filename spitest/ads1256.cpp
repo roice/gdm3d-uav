@@ -261,7 +261,7 @@ namespace input
         /* data 100sps */
         //writeReg(ADS1256_DRATE, ADS1256_DRATE_100SPS, true);
         usleep(1000);
-        writeReg(ADS1256_IO, 0x00, true);
+        //writeReg(ADS1256_IO, 0x00, true);
         usleep(1000);
 		return true;	//ok!
 	}
