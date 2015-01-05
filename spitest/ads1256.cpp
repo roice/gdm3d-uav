@@ -96,16 +96,16 @@ namespace input
 		memset( xfer,0,sizeof(xfer));
 
 		xfer[0].tx_buf = xfer[0].rx_buf = (unsigned long) txb1;
-        /* Modified by Roice, 20150105
-        xfer[0].tx_buf = xfer[0].rx_buf = ((unsigned int)txb1[0] << 24) + ((unsigned int)txb1[1] << 16) + ((unsigned int)txb1[2] << 8);
-        */
 
 		xfer[0].len = 3;
 		
 //		printf("Write %X %X\n", txb1[0], txb1[2]);
 		status = ioctl( fd, SPI_IOC_MESSAGE(1), xfer );
 		if ( status < 0 )
-			return false;
+        {
+			printf("Error: ADS1256::writeReg-->write failed.\n");
+            return false;
+        }
 
 		if ( verify ) {
 			unsigned char temp;
@@ -237,7 +237,7 @@ namespace input
         /* Settings of ADS1256 */
         /* status */
         if (!writeReg(ADS1256_STATUS, 0x06, true))
-            printf("Error: ADS1256::init-->'writeReg(ADS1256_STATUS, 0x06, true)' verify failed");
+            printf("Error: ADS1256::init-->'writeReg(ADS1256_STATUS, 0x06, true)' verify failed\n");
         /* A0:'+' AINCOM:'-' */
         writeReg(ADS1256_MUX, 0x08, true);
         /* Amp 1 */
