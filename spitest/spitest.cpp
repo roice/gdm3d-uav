@@ -22,6 +22,9 @@
 
 int main()
 {
+    unsigned int val;
+    double voltage;
+
     /* init AD */
     input::ADS1256 devAD(SPIDEV_NODE_ADC, SPIDEV_CLK_ADC);
     if (!devAD.init()) {
@@ -33,12 +36,21 @@ int main()
     printf("Init ADC done.\n");
 
     while(1)
-    {
-        int val;
+    { 
         if (!devAD.getSample(ADC_CH0, &val))
             printf("Error: Convert ADC channel 0 error\n");
         else
-            printf("%d\t", val);
+        {
+            if (val & 0x800000)
+            {
+                val = ~val;
+                val &= 0x7fffff;
+                val += 1;
+                val = -val;
+            }
+            voltage = (double)val*0.596046;
+            printf("Voltage is %f Volt.\n", voltage);
+        }
         usleep(100000);
     }
 }

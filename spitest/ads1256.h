@@ -132,7 +132,7 @@ namespace input {
 			/**
 			 * Reads conversion data
 			 */
-			bool	readData( int *val );
+			bool	readData( unsigned int *val );
 
 			/**
 			 * Writes register data
@@ -165,7 +165,7 @@ namespace input {
 			 * @param channel	AD channel to acquire
 			 * @param result	where to store data, raw;
 			 */
-			bool getSample( uint8_t channel, int *result );
+			bool getSample( uint8_t channel, unsigned int *result );
 	};
 };
 

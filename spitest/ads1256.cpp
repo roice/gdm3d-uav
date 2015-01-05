@@ -161,7 +161,7 @@ namespace input
 		return true;
 	}
 
-	bool	ADS1256::readData( int *val )
+	bool	ADS1256::readData( unsigned int *val )
 	{
 		int status;
 
@@ -187,7 +187,7 @@ namespace input
 		if ( status < 0 )
 			return false;
 
-		printf("DA: %X %X %X\n", txb2[0], txb2[1], txb2[2] );
+		//printf("DA: %X %X %X\n", txb2[0], txb2[1], txb2[2] );
         /* 24bit */
 		*val = (256*256*txb2[0] + 256*txb2[1] + txb2[2]);
 
@@ -265,9 +265,9 @@ namespace input
 		return true;	//ok!
 	}
 
-	bool ADS1256::getSample( uint8_t channel, int *result ) 
+	bool ADS1256::getSample( uint8_t channel, unsigned int *result ) 
 	{
-        int sample_val;
+        unsigned int sample_val;
 
         /* set channel */
         writeReg(ADS1256_MUX, channel);
@@ -281,7 +281,7 @@ namespace input
         }
         else
         {
-            printf("Sample OK.\t");
+            //printf("Sample OK.\t");
             *result = sample_val;
             return true;
         }
