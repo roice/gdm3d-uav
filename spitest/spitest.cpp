@@ -43,12 +43,14 @@ int main()
         {
             if (val & 0x800000)
             {
-                val = ~val;
-                val &= 0x7fffff;
-                val += 1;
-                val = -val;
+                //val = ~val;
+                //val &= 0x7fffff;
+                //val += 1;
+                //val = -val;
+                val = val - 0x800000;
+                val = 0x7FFFFF - val + 1;
             }
-            printf("Sampled ADC is %d .\n", val);
+            printf("Sampled ADC is %d.\n", val);
         }
         usleep(100000);
     }
