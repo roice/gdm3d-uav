@@ -8,9 +8,7 @@
 
 /* device node of SPI for ADS1256 */
 #define SPIDEV_NODE_ADC  "/dev/spidev0.0"
-/* Clock and reference volt of ADS1256 */
-#define SPIDEV_CLK_ADC  50000
-#define ADC_VREF    5.0
+
 #define ADC_CH0     (ADS1256_MUXN_AIN0 << 4) | ADS1256_MUXN_AINCOM
 #define ADC_CH1     1
 #define ADC_CH2     2
@@ -24,7 +22,7 @@ int main()
 {
     /* init AD */
     input::ADS1256 devAD(SPIDEV_NODE_ADC, ADC_VREF);
-    if (!devAD.init(SPIDEV_CLK_ADC)) {
+    if (!devAD.init()) {
         printf("Error: Error init AD\n");
         return -1;
     }

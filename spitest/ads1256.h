@@ -26,6 +26,10 @@
 
 #include <stdint.h>
 
+/* Clock and reference volt of ADS1256 */
+#define ADS1256_SPI_CLK  50000
+#define ADS1256_VREF    5.0
+
 // define commands 
 #define ADS1256_CMD_WAKEUP   0x00 
 #define ADS1256_CMD_RDATA    0x01 
@@ -155,7 +159,7 @@ namespace input {
 			 * @param spiclk	spi clock
 			 * @return	true if OK, false if there was an error
 			 */
-			bool init(unsigned int spiclk);
+			bool init(void);
 
 			/**
 			 * Gets sample
