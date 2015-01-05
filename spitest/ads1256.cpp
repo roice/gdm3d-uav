@@ -178,7 +178,7 @@ namespace input
 		if ( status < 0 )
 			return false;
 
-//		printf("DA: %X %X %X\n", txb2[0], txb2[1], txb2[2] );
+		printf("DA: %X %X %X\n", txb2[0], txb2[1], txb2[2] );
         /* 24bit */
 		*val = (256*256*txb2[0] + 256*txb2[1] + txb2[2]);
 
@@ -262,6 +262,7 @@ namespace input
         }
         else
         {
+            printf("Sample OK.\t");
             *result = sample_val;
             return true;
         }
