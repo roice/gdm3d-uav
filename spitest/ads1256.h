@@ -47,7 +47,6 @@ namespace input {
 			 */
 			bool	readReg( unsigned char reg, unsigned char *val );
 
-			bool setMux( int ch1, int ch2 ) ;
 			/**
 			 * Reads conversion data
 			 */
@@ -70,10 +69,6 @@ namespace input {
 			 */
 			ADS1256( const char *device, float vref );
 
-			bool test();
-
-			bool	convert( int ch1, int ch2, float *val ) ;
-
 			/**
 			 * Try to initialize spidev and relevant functionality
 			 *
@@ -82,17 +77,13 @@ namespace input {
 			 */
 			bool init(unsigned int spiclk);
 
-			//sets IO as output and sets pin value
-			bool	setIO( unsigned int pin, int high );
-
 			/**
 			 * Gets sample
 			 *
 			 * @param channel	AD channel to acquire
-			 * @param result	where to store data,
-			 *					converted to Volts
+			 * @param result	where to store data, raw;
 			 */
-			bool getSample( uint8_t channel, float *result );
+			bool getSample( uint8_t channel, int *result );
 	};
 };
 
