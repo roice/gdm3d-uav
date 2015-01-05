@@ -32,9 +32,6 @@ int main()
 
     printf("Init ADC done.\n");
 
-while(1)
-{}
-
     while(1)
     {
         int val;
