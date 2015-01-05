@@ -146,6 +146,8 @@ namespace input
 		
 		status = ioctl( fd, SPI_IOC_MESSAGE(2), xfer );
 		if ( status < 0 )
+        {
+            printf("Error: ADS1256::readReg-->read failed.\n");
 			return false;
 
 		*val = txb2[0];
