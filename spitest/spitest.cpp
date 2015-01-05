@@ -34,5 +34,6 @@ int main()
             printf("Error: Convert ADC channel 0 error\n");
         else
             printf("%d\t", val);
+        usleep(1000);
     }
 }
