@@ -109,8 +109,16 @@ namespace input
 
 		if ( verify ) {
 			unsigned char temp;
-			if ( !readReg( reg, &temp ) )	return false;
-			if ( temp != val )	return false;
+			if ( !readReg( reg, &temp ) )
+            {
+                printf("Error: ADS1256::writeReg-->verify failed, can't read Reg.\n");
+                return false;
+            }
+			if ( temp != val )
+            {
+                printf("Error: ADS1256::writeReg-->verify failed, value written is %x, value read is %x, not equal.\n", val, temp);
+                return false;
+            }
 		}
 
 		return true;
@@ -239,8 +247,7 @@ namespace input
 
         /* Settings of ADS1256 */
         /* status */
-        if (!writeReg(ADS1256_STATUS, 0x06, true))
-            printf("Error: ADS1256::init-->'writeReg(ADS1256_STATUS, 0x06, true)' verify failed\n");
+        writeReg(ADS1256_STATUS, 0x06, true); 
         /* A0:'+' AINCOM:'-' */
         writeReg(ADS1256_MUX, 0x08, true);
         /* Amp 1 */
