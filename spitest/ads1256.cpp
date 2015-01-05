@@ -49,9 +49,10 @@ namespace input
 		spidevname	= spidev;
         spiclock = clk;
         /* According to Timing Characteristics of ADS1256 Manual,
-         * this delay is t_6, which is 50/f_clkin. So if SPI Master
-         * clock is 50kHz, this delay is 1ms, which is 1000 micro seconds*/
-        readDelayUSecs = 50*1000*1000/clk;
+         * this delay is t_6, which is 50/f_clkin. So if f_clkin=7.68MHz
+         * which is the recommended hardware setting, this delay is 6.5us
+         */
+        readDelayUSecs = 8;
 	}
 
 	bool	ADS1256::writeCmd( unsigned char cmd )
@@ -252,13 +253,13 @@ namespace input
         //writeReg(ADS1256_STATUS, 0x06, true);
         usleep(1000);
         /* A0:'+' AINCOM:'-' */
-        writeReg(ADS1256_MUX, 0x08, true);
+        //writeReg(ADS1256_MUX, 0x08, true);
         usleep(1000);
         /* Amp 1 */
-        writeReg(ADS1256_ADCON, 0x00, true);
+        //writeReg(ADS1256_ADCON, 0x00, true);
         usleep(1000);
         /* data 100sps */
-        writeReg(ADS1256_DRATE, ADS1256_DRATE_100SPS, true);
+        //writeReg(ADS1256_DRATE, ADS1256_DRATE_100SPS, true);
         usleep(1000);
         writeReg(ADS1256_IO, 0x00, true);
         usleep(1000);
@@ -271,11 +272,10 @@ namespace input
 
         /* set channel */
         writeReg(ADS1256_MUX, channel);
-        usleep(1000);
-        writeCmd(ADS1256_CMD_SYNC);
-        usleep(1000);
-        writeCmd(ADS1256_CMD_WAKEUP);
-        usleep(1000);
+        usleep(100); 
+       // writeCmd(ADS1256_CMD_WAKEUP);
+       // usleep(100);
+       // writeCmd(ADS1256_CMD_SYNC);
 
         if(!readData(&sample_val))
         {
