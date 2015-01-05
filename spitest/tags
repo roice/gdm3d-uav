@@ -1,0 +1,72 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.9~svn20110310	//
+ADS1256	./ads1256.cpp	/^	ADS1256::ADS1256( const char *spidev, float vref ) $/;"	f	class:input::ADS1256
+ADS1256	./ads1256.h	/^	class	ADS1256$/;"	c	namespace:input
+ARRAY_SIZE	./spidev_test.c	24;"	d	file:
+DRATE_15KSPS	./ads1256.cpp	56;"	d	file:
+DRATE_30KSPS	./ads1256.cpp	55;"	d	file:
+DRATE_3750SPS	./ads1256.cpp	58;"	d	file:
+DRATE_50SPS	./ads1256.cpp	59;"	d	file:
+DRATE_7500SPS	./ads1256.cpp	57;"	d	file:
+LOG	./main.cpp	55;"	d	file:
+N	./main.cpp	56;"	d	file:
+PGA	./ads1256.cpp	269;"	d	file:
+PGA_1	./ads1256.cpp	67;"	d	file:
+PGA_16	./ads1256.cpp	63;"	d	file:
+PGA_2	./ads1256.cpp	66;"	d	file:
+PGA_32	./ads1256.cpp	62;"	d	file:
+PGA_4	./ads1256.cpp	65;"	d	file:
+PGA_64	./ads1256.cpp	61;"	d	file:
+PGA_8	./ads1256.cpp	64;"	d	file:
+SP	./main.cpp	/^	static openAHRS::calib::Sphere		SP;$/;"	v	file:
+SP	./main.cpp	/^	static openAHRS::calib::UKFEllipsoid	SP;$/;"	v	file:
+USE_SPHERE	./main.cpp	41;"	d	file:
+_ads1256_h_	./ads1256.h	25;"	d
+bits	./spidev_test.c	/^static uint8_t bits = 8;$/;"	v	file:
+cmdReset	./ads1256.cpp	/^static const unsigned char	cmdReset	= 0xFE;$/;"	v	file:
+cmdStandBy	./ads1256.cpp	/^static const unsigned char	cmdStandBy	= 0xFD;$/;"	v	file:
+cmdSync	./ads1256.cpp	/^static const unsigned char	cmdSync		= 0xFC;$/;"	v	file:
+cmdWakeUp	./ads1256.cpp	/^static const unsigned char	cmdWakeUp	= 0x00;$/;"	v	file:
+convert	./ads1256.cpp	/^	bool	ADS1256::convert( int ch1, int ch2, float *val ) {$/;"	f	class:input::ADS1256
+delay	./spidev_test.c	/^static uint16_t delay;$/;"	v	file:
+device	./spidev_test.c	/^static const char *device = "\/dev\/spidev1.1";$/;"	v	file:
+fd	./ads1256.h	/^			int			fd;	\/* file descriptor *\/$/;"	m	class:input::ADS1256
+getMagn	./main.cpp	/^static void	getMagn( ADS1256 &ad, Matrix<FT,3,1> &out )$/;"	f	file:
+getSample	./ads1256.cpp	/^	bool ADS1256::getSample( uint8_t channel, float *result ) $/;"	f	class:input::ADS1256
+init	./ads1256.cpp	/^	bool ADS1256::init( unsigned int spiclk ) $/;"	f	class:input::ADS1256
+input	./ads1256.cpp	/^namespace input $/;"	n	file:
+input	./ads1256.h	/^namespace input {$/;"	n
+main	./main.cpp	/^int main()$/;"	f
+main	./spidev_test.c	/^int main(int argc, char *argv[])$/;"	f
+mmax	./main.cpp	/^FT mmax[3],mmin[3];$/;"	v
+mmin	./main.cpp	/^FT mmax[3],mmin[3];$/;"	v
+mode	./spidev_test.c	/^static uint8_t mode;$/;"	v	file:
+pabort	./spidev_test.c	/^static void pabort(const char *s)$/;"	f	file:
+parse_opts	./spidev_test.c	/^static void parse_opts(int argc, char *argv[])$/;"	f	file:
+print_usage	./spidev_test.c	/^static void print_usage(const char *prog)$/;"	f	file:
+rawData	./main.cpp	/^Matrix<FT,3,1>	rawData[N];$/;"	v
+readData	./ads1256.cpp	/^	bool	ADS1256::readData( int *val )$/;"	f	class:input::ADS1256
+readDelayUSecs	./ads1256.cpp	/^static const int	readDelayUSecs	= 10;$/;"	v	file:
+readReg	./ads1256.cpp	/^	bool	ADS1256::readReg( unsigned char reg, unsigned char *val )$/;"	f	class:input::ADS1256
+regADCon	./ads1256.cpp	/^static const unsigned char	regADCon	= 0x02;$/;"	v	file:
+regDRate	./ads1256.cpp	/^static const unsigned char	regDRate	= 0x03;$/;"	v	file:
+regIO	./ads1256.cpp	/^static const unsigned char	regIO		= 0x04;$/;"	v	file:
+regMux	./ads1256.cpp	/^static const unsigned char	regMux		= 0x01;$/;"	v	file:
+regStatus	./ads1256.cpp	/^static const unsigned char	regStatus	= 0x00;$/;"	v	file:
+res	./main.cpp	/^Matrix<FT,3,1> res;$/;"	v
+setIO	./ads1256.cpp	/^	bool	ADS1256::setIO( unsigned int pin, int high )$/;"	f	class:input::ADS1256
+setMux	./ads1256.cpp	/^	bool	ADS1256::setMux( int ch1, int ch2 ) {$/;"	f	class:input::ADS1256
+speed	./spidev_test.c	/^static uint32_t speed = 500000;$/;"	v	file:
+spidevname	./ads1256.h	/^			const char	*spidevname;$/;"	m	class:input::ADS1256
+st	./main.cpp	/^	Matrix<FT,4,1>	st;$/;"	v
+st	./main.cpp	/^	Matrix<FT,9,1>	st;$/;"	v
+test	./ads1256.cpp	/^	bool ADS1256::test()$/;"	f	class:input::ADS1256
+testbit	./ads1256.cpp	37;"	d	file:
+transfer	./spidev_test.c	/^static void transfer(int fd)$/;"	f	file:
+vRef	./ads1256.h	/^			float		vRef;$/;"	m	class:input::ADS1256
+writeCmd	./ads1256.cpp	/^	bool	ADS1256::writeCmd( unsigned char cmd )$/;"	f	class:input::ADS1256
+writeReg	./ads1256.cpp	/^	bool	ADS1256::writeReg( unsigned char reg, unsigned char val, bool verify )$/;"	f	class:input::ADS1256
