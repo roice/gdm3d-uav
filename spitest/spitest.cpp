@@ -11,7 +11,7 @@
 /* Clock and reference volt of ADS1256 */
 #define SPIDEV_CLK_ADC  400000
 #define ADC_VREF    5.0
-#define ADC_CH0     0
+#define ADC_CH0     (ADS1256_MUXN_AIN0 << 4) | ADS1256_MUXN_AINCOM
 #define ADC_CH1     1
 #define ADC_CH2     2
 #define ADC_CH3     3
@@ -36,6 +36,6 @@ int main()
             printf("Error: Convert ADC channel 0 error\n");
         else
             printf("%d\t", val);
-        usleep(1000000);
+        usleep(100000);
     }
 }
