@@ -155,7 +155,7 @@ namespace input
 			return false;
         }
 
-		*val = txb1[0];
+		*val = txb2[0];
 		return true;
 	}
 
@@ -197,7 +197,7 @@ namespace input
 		int ret;
 
         /* CPOL=low, CPHA=second edge, MSB first, 8bits */
-		uint8_t mode = SPI_MODE_0;
+		uint8_t mode = SPI_MODE_1;
 		uint8_t bits = 8;
 		uint32_t speed = spiclk;
 
