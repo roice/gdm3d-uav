@@ -155,7 +155,7 @@ namespace input
 			return false;
         }
 
-		*val = txb2[0];
+		*val = txb1[0];
 		return true;
 	}
 
@@ -243,14 +243,19 @@ namespace input
 
         /* Settings of ADS1256 */
         /* status */
-        writeReg(ADS1256_STATUS, 0x06, true); 
+        writeReg(ADS1256_STATUS, 0x06, true);
+        usleep(1000);
         /* A0:'+' AINCOM:'-' */
         writeReg(ADS1256_MUX, 0x08, true);
+        usleep(1000);
         /* Amp 1 */
         writeReg(ADS1256_ADCON, 0x00, true);
+        usleep(1000);
         /* data 5sps */
         writeReg(ADS1256_DRATE, ADS1256_DRATE_10SPS, true);
+        usleep(1000);
         writeReg(ADS1256_IO, 0x00, true);
+        usleep(1000);
 		return true;	//ok!
 	}
 
