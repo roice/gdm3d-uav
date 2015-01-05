@@ -200,8 +200,8 @@ namespace input
 	{
 		int ret;
 
-        /* CPOL=low, CPHA=first edge, MSB first, 8bits */
-		uint8_t mode = SPI_MODE_0;
+        /* CPOL=low, CPHA=second edge, MSB first, 8bits */
+		uint8_t mode = SPI_MODE_1;
 		uint8_t bits = 8;
 		uint32_t speed = spiclk;
 
