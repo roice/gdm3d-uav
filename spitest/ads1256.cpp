@@ -169,7 +169,7 @@ namespace input
 		struct spi_ioc_transfer	xfer[2];
 
 		unsigned char txb1[1];
-		unsigned char txb2[4];
+		unsigned char txb2[3];
 
 		memset( xfer,0,sizeof(xfer));
 
@@ -271,8 +271,11 @@ namespace input
 
         /* set channel */
         writeReg(ADS1256_MUX, channel);
+        usleep(1000);
         writeCmd(ADS1256_CMD_SYNC);
+        usleep(1000);
         writeCmd(ADS1256_CMD_WAKEUP);
+        usleep(1000);
 
         if(!readData(&sample_val))
         {
