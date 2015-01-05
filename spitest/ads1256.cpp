@@ -42,17 +42,16 @@
 
 using namespace std;
 
-/* microseconds between last written bit and bit read */
-/* According to Timing Characteristics of ADS1256 Manual, 
- * this delay is t_6, which is 50/f_clkin. So if SPI Master
- * clock is 50kHz, this delay is 1ms, which is 1000 micro seconds*/
-static const int	readDelayUSecs	= 50*1000*1000/ADS1256_SPI_CLK;
-
 namespace input 
 {
-	ADS1256::ADS1256( const char *spidev) 
+	ADS1256::ADS1256( const char *spidev, int clk) 
 	{
 		spidevname	= spidev;
+        spiclock = clk;
+        /* According to Timing Characteristics of ADS1256 Manual,
+         * this delay is t_6, which is 50/f_clkin. So if SPI Master
+         * clock is 50kHz, this delay is 1ms, which is 1000 micro seconds*/
+        readDelayUSecs = 50*1000*1000/clk;
 	}
 
 	bool	ADS1256::writeCmd( unsigned char cmd )
@@ -202,13 +201,17 @@ namespace input
         /* CPOL=low, CPHA=second edge, MSB first, 8bits */
 		uint8_t mode = SPI_MODE_1;
 		uint8_t bits = 8;
-		uint32_t speed = ADS1256_SPI_CLK;
+		uint32_t speed = spiclock;
 
 		fd = open(spidevname, O_RDWR);
 		if (fd < 0) {
 			cout << "can't open device" << endl;
 			return false;
 		}
+        else
+        {
+            printf("Open SPI done. mode = %d, bits = %d, speed = %d Hz, t_6 = %d us.\n", mode, bits, speed, readDelayUSecs);
+        }
 
         /* Settings of Master SPI interface */
 		/* spi mode */
@@ -246,7 +249,7 @@ namespace input
 
         /* Settings of ADS1256 */
         /* status */
-        writeReg(ADS1256_STATUS, 0x06, true);
+        //writeReg(ADS1256_STATUS, 0x06, true);
         usleep(1000);
         /* A0:'+' AINCOM:'-' */
         writeReg(ADS1256_MUX, 0x08, true);

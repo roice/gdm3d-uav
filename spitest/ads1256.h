@@ -26,9 +26,6 @@
 
 #include <stdint.h>
 
-/* Clock of the SPI connecting ADS1256 */
-#define ADS1256_SPI_CLK  50000
-
 // define commands 
 #define ADS1256_CMD_WAKEUP   0x00 
 #define ADS1256_CMD_RDATA    0x01 
@@ -121,7 +118,10 @@ namespace input {
 	{
 		protected:
 			const char	*spidevname;
-			int			fd;	/* file descriptor */
+			int	fd;	/* file descriptor */
+            int spiclock;
+            /* microseconds between last written bit and bit read */ 
+            int readDelayUSecs;
 
 			/**
 			 * Reads a register from the A/D.
@@ -147,9 +147,9 @@ namespace input {
 			/**
 			 * 
 			 * @param device	spidev to use for communication
-			 * @param vref		reference voltage
+			 * @param clk		spi clock frequency (Hz)
 			 */
-			ADS1256( const char *device);
+			ADS1256( const char *device, int clk);
 
 			/**
 			 * Try to initialize spidev and relevant functionality
