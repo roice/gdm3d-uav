@@ -149,6 +149,7 @@ namespace input
         {
             printf("Error: ADS1256::readReg-->read failed.\n");
 			return false;
+        }
 
 		*val = txb2[0];
 		return true;
