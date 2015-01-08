@@ -138,6 +138,7 @@ void *mavlink_udp_receive_thread_func(void *arg)
                 }
             }
         }
+        sleep(1);
     }
 
     pthread_exit(NULL);
