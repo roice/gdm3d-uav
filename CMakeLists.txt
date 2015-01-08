@@ -11,7 +11,7 @@ project (${PRJ_NAME})
 # select the build type for this lib project (release recommanded)
 #set (CMAKE_BUILD_TYPE Release)
 #set (CMAKE_BUILD_TYPE Debug)
-add_definitions (-DDEBUG)
+#add_definitions (-DDEBUG)
 ############################## End ###################################
 
 ###################### Don't touch if possible #######################
