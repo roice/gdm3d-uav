@@ -75,11 +75,17 @@ void udp_init(void)
     }
 
     /* Attempt to make it non blocking */
-//	if (fcntl(sock, F_SETFL, O_NONBLOCK | FASYNC) < 0)
+/*	if (fcntl(sock, F_SETFL, O_NONBLOCK | FASYNC) < 0)
+    {
+		fprintf(stderr, "error setting nonblocking: %s\n", strerror(errno));
+		close(sock);
+		exit(EXIT_FAILURE);
+    }
+*/
     /* Attempt to make it blocking */
     if (fcntl(sock, F_SETFL, FASYNC) < 0)
     {
-		fprintf(stderr, "error setting nonblocking: %s\n", strerror(errno));
+		fprintf(stderr, "error setting blocking: %s\n", strerror(errno));
 		close(sock);
 		exit(EXIT_FAILURE);
     }
